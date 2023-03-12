@@ -26,8 +26,6 @@ export default function AdminPostEdit(props) {
 }
 
 function PostManager() {
-  const [preview, setPreview] = useState(false);
-
   const router = useRouter();
   const { slug } = router.query;
 
@@ -49,11 +47,7 @@ function PostManager() {
             <h1>{post.title}</h1>
             <p>ID: {post.slug}</p>
 
-            <PostForm
-              postRef={postRef}
-              defaultValues={post}
-              preview={preview}
-            />
+            <PostForm postRef={postRef} defaultValues={post} />
           </section>
 
           <aside>
@@ -77,14 +71,21 @@ function PostForm({ defaultValues, postRef, preview }) {
   }, [refresh]);
 
   const updatePost = async () => {
-    await updateDoc(postRef, {
-      content: punkty,
-      updatedAt: serverTimestamp(),
-    });
+    if (punkty == []) {
+      await updateDoc(postRef, {
+        content: [],
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await updateDoc(postRef, {
+        content: punkty,
+        updatedAt: serverTimestamp(),
+      });
+    }
   };
   const handleClick = (e) => {
     e.preventDefault();
-    punkty.push({ tekst, done: false, id: tekst.length });
+    punkty.push({ tekst, done: false, id: punkty.length });
     setRefresh(!refresh);
   };
 
@@ -140,11 +141,11 @@ function PostForm({ defaultValues, postRef, preview }) {
           </button>
         </li>
       </ul>
-      {/* <div className={preview ? styles.hidden : styles.controls}>
+      <div className={preview ? styles.hidden : styles.controls}>
         <button type="submit" className="btn-green">
           Zapisz zmiany
         </button>
-      </div> */}
+      </div>
     </form>
   );
 }
