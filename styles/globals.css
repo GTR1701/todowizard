@@ -316,3 +316,19 @@ b {
 .task-div {
   display: flex;
 }
+
+.level1 {
+  margin-left: auto;
+}
+.level2 {
+  margin-left: 1.5rem;
+}
+.level3 {
+  margin-left: 3rem;
+}
+.level4 {
+  margin-left: 4.5rem;
+}
+.strzalka {
+  font-size: 1rem;
+}

@@ -85,7 +85,7 @@ function PostForm({ defaultValues, postRef, preview }) {
   };
   const handleClick = (e) => {
     e.preventDefault();
-    punkty.push({ tekst, done: false, id: punkty.length });
+    punkty.push({ tekst, done: false, id: punkty.length, indent: 1 });
     setRefresh(!refresh);
   };
 
@@ -109,19 +109,55 @@ function PostForm({ defaultValues, postRef, preview }) {
     }
   };
 
+  const removeIndent = (e, item) => {
+    e.preventDefault();
+    for (let i = 0; i < punkty.length; i++) {
+      if (punkty[i].id == item.id) {
+        if (punkty[i].indent < 4) {
+          punkty[i].indent++;
+          setRefresh(!refresh);
+        }
+      }
+    }
+  };
+
+  const addIndent = (e, item) => {
+    e.preventDefault();
+    for (let i = 0; i < punkty.length; i++) {
+      if (punkty[i].id == item.id) {
+        if (punkty[i].indent > 1) {
+          punkty[i].indent--;
+          setRefresh(!refresh);
+        }
+      }
+    }
+  };
+
   return (
     <form onSubmit={updatePost()}>
       <ul className="todo-ul">
         {punkty.map((item) => (
           <div className="task-div">
             <li
-              className="task"
+              className={`task level${item.indent}`}
               style={item.done ? { textDecoration: "line-through" } : {}}
             >
               {item.tekst}
             </li>
             <button className="btn-green" onClick={(e) => handleMark(e, item)}>
               &#x2714;
+            </button>
+            <button
+              className="btn-blue strzalka"
+              onClick={(e) => addIndent(e, item)}
+            >
+              &#x1F808;
+            </button>
+            <button
+              className="btn-blue strzalka"
+              onClick={(e) => removeIndent(e, item)}
+            >
+              &#x1F80a;
             </button>
             <button className="btn-red" onClick={(e) => handleDelete(e, item)}>
               &#x2718;
@@ -136,9 +172,11 @@ function PostForm({ defaultValues, postRef, preview }) {
             onChange={(e) => setTekst(e.target.value)}
             value={tekst}
           />
-          <button className="btn-blue" onClick={(e) => handleClick(e)}>
-            Dodaj
-          </button>
+          <div className="task-div">
+            <button className="btn-blue" onClick={(e) => handleClick(e)}>
+              Dodaj
+            </button>
+          </div>
         </li>
       </ul>
       <div className={preview ? styles.hidden : styles.controls}>
