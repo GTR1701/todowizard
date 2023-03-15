@@ -304,6 +304,8 @@ b {
 .task {
   width: 90%;
   margin: 1rem 0;
+  background-image: url("/draggable.png");
+  background-size: contain;
 }
 
 .task-div button {

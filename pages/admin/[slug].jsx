@@ -1,6 +1,8 @@
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/router";
 import styles from "../../styles/Admin.module.css";
 import AuthCheck from "../../components/AuthCheck";
-import { firestore, auth } from "../../lib/firebase";
+import { auth } from "../../lib/firebase";
 import {
   serverTimestamp,
   doc,
@@ -8,11 +10,7 @@ import {
   updateDoc,
   getFirestore,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { useDocumentDataOnce } from "react-firebase-hooks/firestore";
-import { useForm } from "react-hook-form";
-import Link from "next/link";
 import toast from "react-hot-toast";
 
 let punkty = [];
@@ -64,13 +62,14 @@ function PostForm({ defaultValues, postRef, preview }) {
   const [tekst, setTekst] = useState("");
   const [refresh, setRefresh] = useState(true);
   const [done, setDone] = useState(false);
-  punkty = defaultValues.content;
+  const [punkty, setPunkty] = useState(defaultValues.content);
 
   useEffect(() => {
     setTekst("");
   }, [refresh]);
 
-  const updatePost = async () => {
+  const updatePost = async (e) => {
+    e.preventDefault();
     if (punkty == []) {
       await updateDoc(postRef, {
         content: [],
@@ -82,6 +81,7 @@ function PostForm({ defaultValues, postRef, preview }) {
         updatedAt: serverTimestamp(),
       });
     }
+    toast.success("Lista zapisana");
   };
   const handleClick = (e) => {
     e.preventDefault();
@@ -133,37 +133,75 @@ function PostForm({ defaultValues, postRef, preview }) {
     }
   };
 
+  const dragItem = useRef();
+  const dragOverItem = useRef();
+
+  const dragStart = (e, position) => {
+    dragItem.current = position;
+    console.log(e.target.innerHTML);
+  };
+
+  const dragEnter = (e, position) => {
+    dragOverItem.current = position;
+    console.log(e.target.innerHTML);
+  };
+
+  const drop = (e) => {
+    const copyListItems = [...punkty];
+    const dragItemContent = copyListItems[dragItem.current];
+    copyListItems.splice(dragItem.current, 1);
+    copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+    dragItem.current = null;
+    dragOverItem.current = null;
+    setPunkty(copyListItems);
+    setRefresh(!refresh);
+  };
+
   return (
-    <form onSubmit={updatePost()}>
+    <>
       <ul className="todo-ul">
-        {punkty.map((item) => (
-          <div className="task-div">
-            <li
-              className={`task level${item.indent}`}
-              style={item.done ? { textDecoration: "line-through" } : {}}
+        {punkty &&
+          punkty.map((item, index) => (
+            <div
+              className="task-div"
+              onDragStart={(e) => dragStart(e, index)}
+              onDragEnter={(e) => dragEnter(e, index)}
+              onDragEnd={drop}
+              key={index}
+              draggable
             >
-              {item.tekst}
-            </li>
-            <button className="btn-green" onClick={(e) => handleMark(e, item)}>
-              &#x2714;
-            </button>
-            <button
-              className="btn-blue strzalka"
-              onClick={(e) => addIndent(e, item)}
-            >
-              &#x1F808;
-            </button>
-            <button
-              className="btn-blue strzalka"
-              onClick={(e) => removeIndent(e, item)}
-            >
-              &#x1F80a;
-            </button>
-            <button className="btn-red" onClick={(e) => handleDelete(e, item)}>
-              &#x2718;
-            </button>
-          </div>
-        ))}
+              <li
+                className={`task level${item.indent}`}
+                style={item.done ? { textDecoration: "line-through" } : {}}
+              >
+                {item.tekst}
+              </li>
+              <button
+                className="btn-green"
+                onClick={(e) => handleMark(e, item)}
+              >
+                &#x2714;
+              </button>
+              <button
+                className="btn-blue strzalka"
+                onClick={(e) => addIndent(e, item)}
+              >
+                &#x1F808;
+              </button>
+              <button
+                className="btn-blue strzalka"
+                onClick={(e) => removeIndent(e, item)}
+              >
+                &#x1F80a;
+              </button>
+              <button
+                className="btn-red"
+                onClick={(e) => handleDelete(e, item)}
+              >
+                &#x2718;
+              </button>
+            </div>
+          ))}
         <li>
           <input
             id="pole"
@@ -180,11 +218,11 @@ function PostForm({ defaultValues, postRef, preview }) {
         </li>
       </ul>
       <div className={preview ? styles.hidden : styles.controls}>
-        <button type="submit" className="btn-green">
+        <button onClick={(e) => updatePost(e)} className="btn-green">
           Zapisz zmiany
         </button>
       </div>
-    </form>
+    </>
   );
 }
 
