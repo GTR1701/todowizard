@@ -304,8 +304,6 @@ b {
 .task {
   width: 90%;
   margin: 1rem 0;
-  background-image: url("/draggable.png");
-  background-size: contain;
 }
 
 .task-div button {
@@ -317,6 +315,8 @@ b {
 
 .task-div {
   display: flex;
+  background-image: url("/draggable.png");
+  background-size: contain;
 }
 
 .level1 {
@@ -333,4 +333,8 @@ b {
 }
 .strzalka {
   font-size: 1rem;
+}
+
+.flex {
+  display: flex;
 }

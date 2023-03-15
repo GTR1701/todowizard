@@ -210,7 +210,7 @@ function PostForm({ defaultValues, postRef, preview }) {
             onChange={(e) => setTekst(e.target.value)}
             value={tekst}
           />
-          <div className="task-div">
+          <div className="flex">
             <button className="btn-blue" onClick={(e) => handleClick(e)}>
               Dodaj
             </button>
